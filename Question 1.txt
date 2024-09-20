@@ -1,0 +1,41 @@
+	
+Question 1
+                 Write a solidity smart Contract for a Non-Fungible Token (NFT) called virtual Land NFT which signifies a virtual land in Metaverse.
+Ans:-  // SPDX-License-Identifier: MIT  
+    pragma solidity ^0.8.0;  
+
+    import "@openzeppelin/contracts/token/ERC721/ERC721.sol";  
+    import "@openzeppelin/contracts/utils/Counters.sol";  
+    import "@openzeppelin/contracts/access/Ownable.sol";  
+
+    contract LandNFT is ERC721, Ownable {  
+        using Counters for Counters.Counter;  
+        Counters.Counter private _tokenIdCounter;  
+
+        struct Land {  
+            string name;  
+            string location;  
+            string metadataURI;  
+        }  
+
+        mapping(uint256 => Land) public lands;  
+
+        event LandCreated(uint256 indexed tokenId, string name, string location, string metadataURI);  
+
+        constructor() ERC721("LandNFT", "LAND") {}  
+
+        function createLand(string memory name, string memory location, string memory metadataURI) public onlyOwner {  
+            uint256 tokenId = _tokenIdCounter.current();  
+            _tokenIdCounter.increment();  
+
+            lands[tokenId] = Land(name, location, metadataURI);  
+            _mint(msg.sender, tokenId);  
+
+            emit LandCreated(tokenId, name, location, metadataURI);  
+        }  
+
+        function getLand(uint256 tokenId) public view returns (Land memory) {  
+            require(_exists(tokenId), "LandNFT: Land does not exist");  
+            return lands[tokenId];  
+        }  
+    }  
